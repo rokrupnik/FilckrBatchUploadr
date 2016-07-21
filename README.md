@@ -1,5 +1,5 @@
 # FlickrBatchUploadr
-Simple python script that recursively iterates given folder and for every directory that contains photos creates a Flickr photoset, uploads containing photos and adds them to the created photoset.
+Simple python script that recursively iterates given folder and for every directory that contains photos creates a Flickr photoset, uploads contained photos and adds them to the created photoset.
 
 # Requirements
 * python 2.7
