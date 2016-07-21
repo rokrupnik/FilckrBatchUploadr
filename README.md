@@ -7,4 +7,6 @@ Simple python script that recursively iterates given folder and for every direct
 * [Flickr API key and secret](https://www.flickr.com/services/apps/create/apply/)
 
 # Usage
-`python upload.py root_folder_with_photos`
+1. Insert your API key and secret to the appropriate place in the script  
+2. In terminal, run: `python upload.py root_folder_with_photos`
+    * For logging redirect standard output to a file e.g.: `python upload.py root_folder_with_photos > log.txt`
