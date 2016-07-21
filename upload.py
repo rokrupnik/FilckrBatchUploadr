@@ -90,44 +90,43 @@ for root, subdirs, files in os.walk(walk_dir):
     # sort files by filename
     files = sorted(files)
 
-    # If at least one picture, create photoset
-    if len(files) > 0:
-        #####################################
-        # Photoset creation
+    photoset_id = 0
 
-        # TODO: check if photoset exist and then update it ALSO check if photo with same title exists
-        # upload primary photo and create photoset
-        filename = files[0]
-        file_path = os.path.join(root, filename)
+    for filename in files:
+        # upload only photos and video
+        if not(filename.lower().endswith(allowed_filetypes)):
+            print '\twrong file type in file %s (full path: %s)\n\t' % (filename, file_path),
+            break
 
-        print '\tuploading primary photo: %s (full path: %s)\n\t' % (filename, file_path),
+        if (photoset_id == 0):
+            #####################################
+            # Photoset creation
 
-        try:
-            fileobj = FileWithCallback(file_path, callback)
-            rsp = flickr.upload(title=filename, filename=filename, fileobj=fileobj, is_public=0, format='xmlnode')
-            primary_photo_id = rsp.photoid[0].text
-            print('\n\tuploaded primary photo with id: ' + primary_photo_id)
+            # TODO: check if photoset exist and then update it ALSO check if photo with same title exists
+            # upload primary photo and create photoset
+            file_path = os.path.join(root, filename)
 
-            print('\tcreating photoset with title ' + os.path.split(root)[1])
-            rsp = flickr.photosets.create(title=os.path.split(root)[1], primary_photo_id=primary_photo_id)
-            photoset_id = rsp['photoset']['id']
-            print('\tcreated photoset with id ' + photoset_id)
+            print '\tuploading primary photo: %s (full path: %s)\n\t' % (filename, file_path),
 
-        except Exception, e:
-            print '\n\t', e
-        #####################################
-
-        #####################################
-        # Uploading other photos
-        # and adding them to created photoset
-
-        for filename in files[1:]:
             try:
-                # upload only photos and video
-                if not(filename.lower().endswith(allowed_filetypes)):
-                    print '\twrong file type in file %s (full path: %s)\n\t' % (filename, file_path),
-                    break
+                fileobj = FileWithCallback(file_path, callback)
+                rsp = flickr.upload(title=filename, filename=filename, fileobj=fileobj, is_public=0, format='xmlnode')
+                primary_photo_id = rsp.photoid[0].text
+                print('\n\tuploaded primary photo with id: ' + primary_photo_id)
 
+                print('\tcreating photoset with title ' + os.path.split(root)[1])
+                rsp = flickr.photosets.create(title=os.path.split(root)[1], primary_photo_id=primary_photo_id)
+                photoset_id = rsp['photoset']['id']
+                print('\tcreated photoset with id ' + photoset_id)
+
+            except Exception, e:
+                print '\n\t', e
+            #####################################
+        else:
+            #####################################
+            # Uploading other photos
+            # and adding them to created photoset
+            try:
                 file_path = os.path.join(root, filename)
 
                 print '\tuploading file %s (full path: %s)\n\t' % (filename, file_path),
@@ -142,7 +141,7 @@ for root, subdirs, files in os.walk(walk_dir):
 
             except Exception, e:
                 print '\n\t', e
-        #####################################
+            #####################################
 
     # Print all subdirs
     for subdir in subdirs:
