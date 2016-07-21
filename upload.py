@@ -29,9 +29,9 @@ def callback(progress):
     print str(progress) + '%\r\t',
 
 start = time.time()
-checkpoint = start
+checkpoint = time.time()
 
-def print_time():
+def print_time(checkpoint):
     end = time.time()
     s = end - start
 
@@ -50,9 +50,7 @@ def print_time():
     m = int(s / 60)
     s = s - (m * 60)
 
-    print 'time for last set: %d hours, %d minutes and %d seconds' % (h, m, s), 
-
-    checkpoint = time.time()
+    print ' || time for last set: %d hours, %d minutes and %d seconds' % (h, m, s), 
 
 api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 api_secret = u'xxxxxxxxxxxxxxxx'
@@ -103,6 +101,7 @@ for root, subdirs, files in os.walk(walk_dir):
         # upload other images
         for filename in files[1:]:
             try:
+                # upload only photos and video
                 if not(filename.lower().endswith(('png', 'jpg', 'gif', 'bmp', 'tiff', 'raw', 'mp4', 'mov', 'avi'))):
                     print '\twrong file type in file %s (full path: %s)\n\t' % (filename, file_path),
                     break
@@ -126,4 +125,7 @@ for root, subdirs, files in os.walk(walk_dir):
     for subdir in subdirs:
         print('\t- subdirectory ' + subdir)
 
-    print_time()
+    print_time(checkpoint)
+    checkpoint = time.time()
+
+print('Upload completed.')
