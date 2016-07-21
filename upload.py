@@ -1,15 +1,46 @@
+################################################################################################################################
+# Removing annoying warnings
+
 import requests
 from requests.packages.urllib3.exceptions import InsecurePlatformWarning, SNIMissingWarning
 requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
 requests.packages.urllib3.disable_warnings(SNIMissingWarning)
+################################################################################################################################
+
+################################################################################################################################
+# Init time measurements
 
 import time
 
+start = time.time()
+checkpoint = time.time()
+
+def print_time(checkpoint):
+    end = time.time()
+
+    s = end - start
+    h = int(s / 3600)
+    s = s - (h * 3600)
+    m = int(s / 60)
+    s = s - (m * 60)
+    print 'time elapsed: %d hours, %d minutes and %d seconds' % (h, m, s), 
+
+    s = end - checkpoint
+    h = int(s / 3600)
+    s = s - (h * 3600)
+    m = int(s / 60)
+    s = s - (m * 60)
+    print ' || time for last set: %d hours, %d minutes and %d seconds' % (h, m, s)
+################################################################################################################################
+
+################################################################################################################################
+# Init flickrapi
+
 import os
 import sys
-
 import flickrapi
 
+# Fileclass for following the upload progress
 class FileWithCallback(object):
     def __init__(self, filename, callback):
         self.file = open(filename, 'rb')
@@ -24,39 +55,20 @@ class FileWithCallback(object):
             self.callback(self.tell() * 100 // self.len)
         return self.file.read(size)
 
-
 def callback(progress):
     print str(progress) + '%\r\t',
-
-start = time.time()
-checkpoint = time.time()
-
-def print_time(checkpoint):
-    end = time.time()
-    s = end - start
-
-    h = int(s / 3600)
-    s = s - (h * 3600)
-
-    m = int(s / 60)
-    s = s - (m * 60)
-
-    print 'time elapsed: %d hours, %d minutes and %d seconds' % (h, m, s), 
-
-    s = end - checkpoint
-    h = int(s / 3600)
-    s = s - (h * 3600)
-
-    m = int(s / 60)
-    s = s - (m * 60)
-
-    print ' || time for last set: %d hours, %d minutes and %d seconds' % (h, m, s), 
 
 api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 api_secret = u'xxxxxxxxxxxxxxxx'
 
+allowed_filetypes = ('png', 'jpg', 'gif', 'bmp', 'tiff', 'raw', 'mp4', 'mov', 'avi', 'vob')
+
 flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
 flickr.authenticate_via_browser(perms='write')
+################################################################################################################################
+
+################################################################################################################################
+# Init walk_dir
 
 walk_dir = sys.argv[1]
 
@@ -67,15 +79,22 @@ print('walk_dir = ' + walk_dir)
 # be an absolute path as well. Example:
 # walk_dir = os.path.abspath(walk_dir)
 print('walk_dir (absolute) = ' + os.path.abspath(walk_dir))
+################################################################################################################################
+
+################################################################################################################################
+# Actual directory iteration and upload
 
 for root, subdirs, files in os.walk(walk_dir):
+    print('--\nroot = ' + root)
+
     # sort files by filename
     files = sorted(files)
 
-    print('--\nroot = ' + root)
-
     # If at least one picture, create photoset
     if len(files) > 0:
+        #####################################
+        # Photoset creation
+
         # TODO: check if photoset exist and then update it ALSO check if photo with same title exists
         # upload primary photo and create photoset
         filename = files[0]
@@ -95,14 +114,17 @@ for root, subdirs, files in os.walk(walk_dir):
             print('\tcreated photoset with id ' + photoset_id)
 
         except Exception, e:
-            print '\n\t',
-            print(e)
+            print '\n\t', e
+        #####################################
 
-        # upload other images
+        #####################################
+        # Uploading other photos
+        # and adding them to created photoset
+
         for filename in files[1:]:
             try:
                 # upload only photos and video
-                if not(filename.lower().endswith(('png', 'jpg', 'gif', 'bmp', 'tiff', 'raw', 'mp4', 'mov', 'avi'))):
+                if not(filename.lower().endswith(allowed_filetypes)):
                     print '\twrong file type in file %s (full path: %s)\n\t' % (filename, file_path),
                     break
 
@@ -119,9 +141,10 @@ for root, subdirs, files in os.walk(walk_dir):
                 print 'status: ', rsp['stat']
 
             except Exception, e:
-                print '\n\t',
-                print(e)
+                print '\n\t', e
+        #####################################
 
+    # Print all subdirs
     for subdir in subdirs:
         print('\t- subdirectory ' + subdir)
 
@@ -129,3 +152,4 @@ for root, subdirs, files in os.walk(walk_dir):
     checkpoint = time.time()
 
 print('Upload completed.')
+################################################################################################################################
