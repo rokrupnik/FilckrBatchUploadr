@@ -10,7 +10,7 @@ requests.packages.urllib3.disable_warnings(SNIMissingWarning)
 ################################################################################################################################
 # Init time measurements
 
-import time
+import time, datetime
 
 start = time.time()
 checkpoint = time.time()
@@ -23,7 +23,7 @@ def print_time(checkpoint):
     s = s - (h * 3600)
     m = int(s / 60)
     s = s - (m * 60)
-    print 'time elapsed: %d hours, %d minutes and %d seconds' % (h, m, s), 
+    print 'current time: ' + str(datetime.datetime.now().time()) + ' || time elapsed: %d hours, %d minutes and %d seconds' % (h, m, s), 
 
     s = end - checkpoint
     h = int(s / 3600)
