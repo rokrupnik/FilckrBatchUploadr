@@ -93,7 +93,6 @@ for root, subdirs, files in os.walk(walk_dir):
 
     # sort files and subdirs by name
     files = sorted(files)
-    subdirs = sorted(subdirs)
 
     photoset_id = 0
 
