@@ -49,14 +49,18 @@ class FileWithCallback(object):
         self.len = os.path.getsize(filename)
         self.fileno = self.file.fileno
         self.tell = self.file.tell
+        self.old_progress = -1
 
     def read(self, size):
         if self.callback:
-            self.callback(self.tell() * 100 // self.len)
+            progress = self.tell() * 100 // self.len
+            self.callback(progress, self.old_progress)
+            self.old_progress = progress
         return self.file.read(size)
 
-def callback(progress):
-    print str(progress) + '%\r\t',
+def callback(progress, old_progress):
+    if (progress != old_progress):
+        print str(progress) + '%',
 
 api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 api_secret = u'xxxxxxxxxxxxxxxx'
@@ -87,16 +91,18 @@ print('walk_dir (absolute) = ' + os.path.abspath(walk_dir))
 for root, subdirs, files in os.walk(walk_dir):
     print('--\nroot = ' + root)
 
-    # sort files by filename
+    # sort files and subdirs by name
     files = sorted(files)
+    subdirs = sorted(subdirs)
 
     photoset_id = 0
 
     for filename in files:
+        file_path = os.path.join(root, filename)
         # upload only photos and video
         if not(filename.lower().endswith(allowed_filetypes)):
-            print '\twrong file type in file %s (full path: %s)\n\t' % (filename, file_path),
-            break
+            print '\terror: wrong file type in file %s (full path: %s)\n\t' % (filename, file_path),
+            continue
 
         if (photoset_id == 0):
             #####################################
@@ -104,7 +110,6 @@ for root, subdirs, files in os.walk(walk_dir):
 
             # TODO: check if photoset exist and then update it ALSO check if photo with same title exists
             # upload primary photo and create photoset
-            file_path = os.path.join(root, filename)
 
             print '\tuploading primary photo: %s (full path: %s)\n\t' % (filename, file_path),
 
@@ -127,7 +132,6 @@ for root, subdirs, files in os.walk(walk_dir):
             # Uploading other photos
             # and adding them to created photoset
             try:
-                file_path = os.path.join(root, filename)
 
                 print '\tuploading file %s (full path: %s)\n\t' % (filename, file_path),
 
