@@ -65,7 +65,7 @@ def callback(progress, old_progress):
 api_key = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 api_secret = u'xxxxxxxxxxxxxxxx'
 
-allowed_filetypes = ('png', 'jpg', 'gif', 'bmp', 'tiff', 'raw', 'mp4', 'mov', 'avi', 'vob')
+allowed_filetypes = ('png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'raw', 'mp4', 'mov', 'avi', 'vob')
 
 flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
 flickr.authenticate_via_browser(perms='write')
